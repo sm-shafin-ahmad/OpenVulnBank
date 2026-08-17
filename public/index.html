@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Bank — Online Banking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f5fa;
+      --surface: #ffffff;
+      --border: #e5e9f2;
+      --text: #0f1b2d;
+      --muted: #64748b;
+      --primary: #1749c8;
+      --primary-2: #0a2f8a;
+      --accent: #0ea5e9;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 14px;
+      --shadow: 0 8px 30px rgba(15, 27, 45, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .fw-600 { font-weight: 600; }
+    .fw-800 { font-weight: 800; }
+
+    /* ── Buttons ───────────────────────────── */
+    .btn {
+      border: none; border-radius: 10px; cursor: pointer;
+      font-weight: 600; font-size: 0.92rem; padding: 0.7rem 1.1rem;
+      transition: all 0.15s ease; font-family: inherit;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost { background: rgba(23, 73, 200, 0.08); color: var(--primary); }
+    .btn-sm { padding: 0.45rem 0.85rem; font-size: 0.82rem; border-radius: 8px; }
+    .btn-block { width: 100%; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Inputs ────────────────────────────── */
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.45rem;
+    }
+    .input, select.input, textarea.input {
+      width: 100%; padding: 0.72rem 0.9rem; font-size: 0.95rem;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      background: #fbfcfe; color: var(--text); font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(23, 73, 200, 0.12); }
+    textarea.input { resize: vertical; min-height: 90px; }
+
+    .input-group { display: flex; gap: 0.5rem; }
+    .input-group .input { flex: 1; }
+
+    /* ── Login Screen ──────────────────────── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(1200px 600px at 15% -10%, #1a4fd8 0%, transparent 55%),
+                  radial-gradient(1000px 500px at 110% 110%, #0ea5e9 0%, transparent 50%),
+                  linear-gradient(160deg, #0a1e44 0%, #0b1020 100%);
+    }
+    .login-card {
+      width: 100%; max-width: 420px; background: var(--surface);
+      border-radius: 20px; padding: 2.4rem; box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    }
+    .login-brand { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.8rem; }
+    .login-brand .logo-badge {
+      width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-size: 1.2rem;
+    }
+    .login-brand h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+    .login-brand p { font-size: 0.75rem; color: var(--muted); }
+    .login-secure { display: flex; gap: 0.4rem; align-items: center; font-size: 0.72rem; color: var(--muted); margin-top: 1.2rem; justify-content: center; }
+    .login-secure i { color: var(--success); }
+    .login-err {
+      background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+      padding: 0.6rem 0.9rem; border-radius: 10px; font-size: 0.82rem; margin-bottom: 1rem; display: none;
+    }
+    .login-err.show { display: block; }
+    .demo-hint {
+      margin-top: 1.4rem; padding: 0.9rem; background: #f8fafc; border: 1px dashed var(--border);
+      border-radius: 10px; font-size: 0.78rem; color: var(--muted);
+    }
+    .demo-hint b { color: var(--text); }
+
+    /* ── App Shell ─────────────────────────── */
+    #appShell { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+      padding: 1.2rem 0.9rem; display: flex; flex-direction: column; gap: 0.2rem;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; overflow-y: auto;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.6rem; padding: 0.2rem 0.6rem 1.1rem; }
+    .sidebar-brand .logo-badge {
+      width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+    }
+    .sidebar-brand strong { font-size: 0.98rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sidebar-brand small { display: block; font-size: 0.68rem; color: var(--muted); }
+
+    .nav-group-label {
+      font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #94a3b8; padding: 0.9rem 0.6rem 0.35rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.7rem; width: 100%;
+      padding: 0.62rem 0.75rem; border-radius: 10px; cursor: pointer;
+      color: var(--muted); font-size: 0.88rem; font-weight: 500; border: none; background: none; font-family: inherit;
+      transition: all 0.14s;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 0.95rem; }
+    .nav-item:hover { background: #f1f5fb; color: var(--text); }
+    .nav-item.active { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; box-shadow: 0 6px 18px rgba(23, 73, 200, 0.3); }
+
+    .main {
+      flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 1rem;
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border); padding: 0.75rem 1.8rem;
+    }
+    .topbar-title { font-weight: 700; font-size: 1.02rem; }
+    .topbar-spacer { flex: 1; }
+    .difficulty-pill {
+      display: flex; align-items: center; gap: 0.5rem; background: #f8fafc;
+      border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.4rem 0.3rem 0.8rem; font-size: 0.76rem; font-weight: 600; color: var(--muted);
+    }
+    .difficulty-pill select {
+      border: none; background: transparent; font-weight: 700; color: var(--primary);
+      font-size: 0.76rem; cursor: pointer; outline: none; font-family: inherit;
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 0.6rem; background: #f8fafc;
+      border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; display: grid; place-items: center; font-size: 0.8rem; font-weight: 700;
+    }
+    .user-chip .u-name { font-size: 0.82rem; font-weight: 600; line-height: 1.1; }
+    .user-chip .u-role { font-size: 0.68rem; color: var(--muted); text-transform: capitalize; }
+
+    .content { padding: 1.8rem; flex: 1; }
+
+    /* ── Views / Cards ─────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem;
+    }
+    .card + .card { margin-top: 1.2rem; }
+    .card-title { display: flex; align-items: center; gap: 0.6rem; font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .card-title i { color: var(--primary); }
+    .card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.1rem; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } .sidebar { width: 200px; } .main { margin-left: 200px; } }
+    @media (max-width: 720px) { .sidebar { display: none; } .main { margin-left: 0; } }
+
+    /* ── Dashboard ─────────────────────────── */
+    .hero-account {
+      position: relative; overflow: hidden; color: #fff; border-radius: 18px; padding: 1.8rem;
+      background: linear-gradient(120deg, #123f9e 0%, #1749c8 45%, #1e5ff0 100%);
+      box-shadow: 0 18px 40px rgba(23, 73, 200, 0.35);
+    }
+    .hero-account::after {
+      content: ''; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%); border-radius: 50%;
+    }
+    .hero-account .chip-row { display: flex; align-items: center; justify-content: space-between; }
+    .hero-account .bank-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.85; font-weight: 600; }
+    .hero-account .balance-label { font-size: 0.78rem; opacity: 0.85; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .hero-account .balance { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-account .account-row { display: flex; gap: 2.2rem; margin-top: 1.3rem; }
+    .hero-account .account-row small { display: block; font-size: 0.66rem; opacity: 0.7; text-transform: uppercase; }
+    .hero-account .account-row .val { font-size: 0.95rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.2rem 0; }
+    @media (max-width: 900px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.1rem 1.2rem; box-shadow: var(--shadow);
+    }
+    .stat .icon { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-size: 1rem; margin-bottom: 0.7rem; }
+    .stat .num { font-size: 1.25rem; font-weight: 800; }
+    .stat .lbl { font-size: 0.74rem; color: var(--muted); }
+
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.2rem; }
+    @media (max-width: 900px) { .quick-grid { grid-template-columns: repeat(2, 1fr); } }
+    .quick {
+      display: flex; align-items: center; gap: 0.8rem; padding: 1rem 1.1rem; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      font-family: inherit; font-size: 0.9rem; font-weight: 600; color: var(--text);
+      transition: all 0.15s; text-align: left; box-shadow: var(--shadow);
+    }
+    .quick:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .quick .q-icon { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font-size: 1.05rem; flex-shrink: 0; }
+
+    /* ── Console drawer ────────────────────── */
+    .console-wrap { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; font-family: 'JetBrains Mono', monospace; }
+    .console-toggle {
+      margin-left: 240px; display: flex; align-items: center; gap: 0.5rem;
+      background: #0b1220; color: #38bdf8; border: none; cursor: pointer;
+      padding: 0.5rem 1rem; font-size: 0.74rem; font-weight: 600; border-radius: 10px 10px 0 0;
+      font-family: inherit;
+    }
+    .console-toggle:hover { background: #101a2e; }
+    .console-panel {
+      display: none; height: 300px; background: #0b1220; color: #cbd5e1;
+      flex-direction: column; overflow: hidden;
+      border-top: 1px solid #1f2b45;
+    }
+    .console-panel.open { display: flex; }
+    .console-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+      padding: 0.5rem 0.9rem; border-bottom: 1px solid #1f2b45; background: #0e1626; flex-shrink: 0;
+    }
+    .console-tabs { display: flex; gap: 0.3rem; }
+    .ctab {
+      background: transparent; border: 1px solid #263449; color: #94a3b8; border-radius: 7px;
+      padding: 0.3rem 0.7rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .ctab.active { background: #1749c8; border-color: #1749c8; color: #fff; }
+    .console-tools { display: flex; gap: 0.4rem; }
+    .console-tools button {
+      background: #16223a; border: 1px solid #263449; color: #cbd5e1; border-radius: 7px;
+      padding: 0.3rem 0.6rem; font-size: 0.7rem; cursor: pointer; font-family: inherit;
+    }
+    .console-tools button:hover { background: #1e2d4a; }
+    .console-body {
+      flex: 1; padding: 0.8rem 1.1rem; overflow: auto; font-size: 0.78rem; line-height: 1.55; margin: 0;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .console-body .req-line { color: #7dd3fc; font-weight: 600; }
+    .console-body .res-line { color: #6ee7b7; font-weight: 600; margin-top: 0.7rem; }
+    .console-body .hdr-k { color: #94a3b8; }
+    .console-body .hdr-v { color: #e2e8f0; }
+    .console-body .body-block { color: #e2e8f0; }
+    .console-empty { color: #64748b; }
+
+    /* ── Misc ──────────────────────────────── */
+    .toast-wrap { position: fixed; top: 1.2rem; right: 1.2rem; z-index: 100; display: flex; flex-direction: column; gap: 0.6rem; }
+    .toast {
+      background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--primary);
+      border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 500;
+      box-shadow: var(--shadow); max-width: 340px; animation: slideIn 0.25s ease;
+    }
+    .toast.ok { border-left-color: var(--success); }
+    .toast.err { border-left-color: var(--danger); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+    .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .table th { text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); }
+    .table td { padding: 0.65rem 0.7rem; border-bottom: 1px solid #f0f3f9; }
+    .table tr:last-child td { border-bottom: none; }
+
+    .pill { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 600; padding: 0.28rem 0.65rem; border-radius: 999px; }
+    .pill.success { background: #ecfdf5; color: #047857; }
+    .pill.danger { background: #fef2f2; color: #b91c1c; }
+    .pill.warn { background: #fffbeb; color: #b45309; }
+    .pill.info { background: #eff6ff; color: #1d4ed8; }
+
+    .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+    .hint { font-size: 0.78rem; color: var(--muted); background: #f8fafc; border: 1px dashed var(--border); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.9rem; }
+    .hint code { background: #eef2f9; padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.74rem; color: #1749c8; font-family: 'JetBrains Mono', monospace; }
+    .empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1.5rem 0; }
+
+    .settings-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; display: grid; place-items: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .amount-in { color: var(--success); font-weight: 600; }
+    .amount-out { color: var(--danger); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════ LOGIN SCREEN ══════════════ -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="logo-badge"><i class="fa-solid fa-building-columns"></i></div>
+        <div>
+          <h1>Apex Global Bank</h1>
+          <p>Enterprise Online Banking</p>
+        </div>
+      </div>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="login-err" id="loginErr"></div>
+        <div class="field">
+          <label for="loginUser">Username</label>
+          <input class="input" type="text" id="loginUser" value="john.doe" placeholder="Enter username">
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input class="input" type="password" id="loginPass" value="password123" placeholder="Enter password">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="loginBtn">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In to Online Banking
+        </button>
+      </form>
+
+      <div class="login-secure">
+        <i class="fa-solid fa-lock"></i> 256-bit SSL Encrypted · FDIC Insured · 2FA Protected
+      </div>
+
+      <div class="demo-hint">
+        <b>Trial mode enabled.</b> Demo users:
+        <span class="mono">admin/admin123</span> ·
+        <span class="mono">john.doe/password123</span> ·
+        <span class="mono">alice.vip/letmein</span>
+        <div style="margin-top:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+          <i class="fa-solid fa-shield-halved"></i> Security level:
+          <select id="loginDifficulty" class="input" style="width:auto; padding:0.25rem 0.5rem; font-size:0.78rem;">
+            <option value="EASY" selected>EASY</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HARD">HARD</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ APP SHELL ══════════════ -->
+  <div id="appShell" class="hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-badge"><i class="fa-solid fa-building-columns"></i></div>
+        <div>
+          <strong>Apex Global Bank</strong>
+          <small>Online Banking</small>
+        </div>
+      </div>
+
+      <div class="nav-group-label">Banking</div>
+      <button class="nav-item active" data-view="dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</button>
+      <button class="nav-item" data-view="transfers"><i class="fa-solid fa-arrow-right-arrow-left"></i> Transfers</button>
+      <button class="nav-item" data-view="cards"><i class="fa-solid fa-credit-card"></i> Cards</button>
+      <button class="nav-item" data-view="store"><i class="fa-solid fa-store"></i> Merchant Store</button>
+
+      <div class="nav-group-label">Services</div>
+      <button class="nav-item" data-view="directory"><i class="fa-solid fa-magnifying-glass"></i> User Directory</button>
+      <button class="nav-item" data-view="documents"><i class="fa-solid fa-folder-open"></i> Documents</button>
+      <button class="nav-item" data-view="webhooks"><i class="fa-solid fa-network-wired"></i> Webhooks</button>
+      <button class="nav-item" data-view="support"><i class="fa-solid fa-headset"></i> Support</button>
+
+      <div class="nav-group-label">Developer</div>
+      <button class="nav-item" data-view="devtools"><i class="fa-solid fa-terminal"></i> API / Tools</button>
+      <button class="nav-item" data-view="settings"><i class="fa-solid fa-user-gear"></i> Settings</button>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <span class="topbar-title" id="pageTitle">Dashboard</span>
+        <span class="topbar-spacer"></span>
+        <div class="user-chip">
+          <div class="user-avatar" id="userAvatar">J</div>
+          <div>
+            <div class="u-name" id="userName">John Doe</div>
+            <div class="u-role" id="userRole">customer</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="logout()" title="Sign out"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <!-- ══ DASHBOARD ══ -->
+        <section class="view active" id="view-dashboard">
+          <div class="hero-account">
+            <div class="chip-row">
+              <span class="bank-label"><i class="fa-solid fa-building-columns"></i> Apex Global Bank</span>
+              <span class="pill" style="background:rgba(255,255,255,0.18); color:#fff;"><i class="fa-solid fa-wifi"></i> Online Banking</span>
+            </div>
+            <div class="balance-label">Available Balance</div>
+            <div class="balance" id="dashBalance">$0.00</div>
+            <div class="account-row">
+              <div><small>Account Number</small><span class="val" id="dashAcc">—</span></div>
+              <div><small>Account Holder</small><span class="val" id="dashHolder">—</span></div>
+              <div><small>Routing</small><span class="val" id="dashRoute">ROUTE_7001</span></div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat">
+              <div class="icon" style="background:#eff6ff;color:#1d4ed8;"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+              <div class="num" id="statCards">1 Active</div>
+              <div class="lbl">Credit Cards</div>
+            </div>
+            <div class="stat">
+              <div class="icon" style="background:#ecfdf5;color:#047857;"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="num" id="statTxns">—</div>
+              <div class="lbl">Transactions</div>
+            </div>
+            <div class="stat">
+              <div class="icon" style="background:#fffbeb;color:#b45309;"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="num" id="statSecurity">EASY</div>
+              <div class="lbl">Security Level</div>
+            </div>
+            <div class="stat">
+              <div class="icon" style="background:#f5f3ff;color:#6d28d9;"><i class="fa-solid fa-file-lock"></i></div>
+              <div class="num">18+</div>
+              <div class="lbl">Document Types</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-bolt"></i> Quick Actions</div>
+            <div class="card-sub">Common banking operations. Each action is sent to the live API.</div>
+            <div class="quick-grid">
+              <button class="quick" onclick="goTo('transfers')"><span class="q-icon" style="background:#eff6ff;color:#1d4ed8;"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Send Wire Transfer</button>
+              <button class="quick" onclick="goTo('cards')"><span class="q-icon" style="background:#f0fdfa;color:#0f766e;"><i class="fa-solid fa-credit-card"></i></span> Manage Cards</button>
+              <button class="quick" onclick="goTo('directory')"><span class="q-icon" style="background:#fff7ed;color:#c2410c;"><i class="fa-solid fa-magnifying-glass"></i></span> Search Directory</button>
+              <button class="quick" onclick="goTo('documents')"><span class="q-icon" style="background:#f5f3ff;color:#6d28d9;"><i class="fa-solid fa-folder-open"></i></span> View Documents</button>
+              <button class="quick" onclick="goTo('store')"><span class="q-icon" style="background:#eff6ff;color:#1d4ed8;"><i class="fa-solid fa-store"></i></span> Visit Store</button>
+              <button class="quick" onclick="goTo('support')"><span class="q-icon" style="background:#fef2f2;color:#b91c1c;"><i class="fa-solid fa-headset"></i></span> Contact Support</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="display:flex; align-items:center; justify-content:space-between;">
+              <span><i class="fa-solid fa-receipt"></i> Recent Transactions</span>
+              <button class="btn btn-ghost btn-sm" onclick="getStatement()"><i class="fa-solid fa-file-lines"></i> View Statement</button>
+            </div>
+            <div class="card-sub">Latest activity on your accounts.</div>
+            <div id="txnContainer"><div class="empty">Loading transactions...</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Session Security</div>
+            <div class="card-sub">Generate a session token and inspect the weak random structure (Burp Sequencer target).</div>
+            <div class="input-group">
+              <button class="btn btn-outline" onclick="getSessionToken()"><i class="fa-solid fa-dice"></i> Generate Session Token</button>
+              <button class="btn btn-ghost" onclick="decodeSessionToken()"><i class="fa-solid fa-code"></i> Decode Last Token</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ TRANSFERS ══ -->
+        <section class="view" id="view-transfers">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-route"></i> Verify Transfer Route</div>
+            <div class="card-sub">Enter an account number and routing code. Valid pairs are checked in lockstep against verified routes.</div>
+            <form id="routeForm" onsubmit="verifyRoute(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="routeAcc">Target Account Number</label>
+                  <input class="input mono" type="text" id="routeAcc" value="ACC_2001">
+                </div>
+                <div class="field">
+                  <label for="routeCode">Routing Code</label>
+                  <input class="input mono" type="text" id="routeCode" value="ROUTE_7001">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-check-double"></i> Verify Route</button>
+            </form>
+            <div class="hint">Try a valid pair <code>ACC_2001</code> + <code>ROUTE_7001</code> or mismatched pairs to observe debug output.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-bolt"></i> Instant Transfer</div>
+            <div class="card-sub">Send money instantly. An artificial delay exposes a race window for parallel transfers.</div>
+            <form id="raceForm" onsubmit="instantTransfer(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="raceTo">Destination Account</label>
+                  <input class="input mono" type="text" id="raceTo" value="ACC_2002">
+                </div>
+                <div class="field">
+                  <label for="raceAmount">Amount (USD)</label>
+                  <input class="input mono" type="number" id="raceAmount" value="150">
+                </div>
+              </div>
+              <button class="btn btn-success" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Transfer</button>
+            </form>
+            <div class="hint">Fire this request 10–20 times in parallel (Burp Turbo Intruder) to double-spend the balance.</div>
+          </div>
+        </section>
+
+        <!-- ══ CARDS ══ -->
+        <section class="view" id="view-cards">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-credit-card"></i> Card Validation</div>
+            <div class="card-sub">Validate card number, CVV and expiry month against registered cards.</div>
+            <form id="cardForm" onsubmit="validateCard(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="cardNo">Card Number</label>
+                  <input class="input mono" type="text" id="cardNo" value="4111111111111111">
+                </div>
+                <div class="field">
+                  <label for="cardCvv">CVV</label>
+                  <input class="input mono" type="text" id="cardCvv" value="737">
+                </div>
+                <div class="field">
+                  <label for="cardExp">Expiry Month (2 digits)</label>
+                  <input class="input mono" type="text" id="cardExp" value="09">
+                </div>
+                <div class="field">
+                  <label for="cardYear">Expiry Year</label>
+                  <input class="input mono" type="text" id="cardYear" value="2027">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-shield"></i> Validate Card</button>
+            </form>
+            <div class="hint">The API returns different status codes for <code>CARD_NOT_FOUND</code>, <code>CVV_MISMATCH</code> and <code>EXP_MISMATCH</code> — ideal for Burp Intruder Cluster Bomb.</div>
+          </div>
+        </section>
+
+        <!-- ══ STORE ══ -->
+        <section class="view" id="view-store">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-store"></i> CloudBank Merchant Store</div>
+            <div class="card-sub">Purchase security hardware from the CloudBank store, charged to your account balance.</div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Product</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+                <tbody id="storeList">
+                  <tr><td>Hardware Crypto Wallet</td><td>$199.99</td><td>50</td><td><button class="btn btn-outline btn-sm" onclick="checkout(1, 199.99)">Buy</button></td></tr>
+                  <tr><td>Premium Security Key</td><td>$45.00</td><td>200</td><td><button class="btn btn-outline btn-sm" onclick="checkout(2, 45.00)">Buy</button></td></tr>
+                  <tr><td>CloudBank Gold Subscription</td><td>$9.99</td><td>999</td><td><button class="btn btn-outline btn-sm" onclick="checkout(3, 9.99)">Buy</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="divider"></div>
+            <div class="card-title" style="font-size:0.95rem;"><i class="fa-solid fa-tags"></i> Price Override Checkout</div>
+            <div class="card-sub">Custom unit price is accepted directly by the checkout API (client-side price tampering).</div>
+            <form id="tamperForm" onsubmit="priceTamper(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="tamperPrice">Unit Price (USD)</label>
+                  <input class="input mono" type="number" id="tamperPrice" value="-50">
+                </div>
+                <div class="field">
+                  <label for="tamperQty">Quantity</label>
+                  <input class="input mono" type="number" id="tamperQty" value="1">
+                </div>
+              </div>
+              <button class="btn btn-warning" style="background:var(--warning);color:#fff;" type="submit"><i class="fa-solid fa-tags"></i> Checkout With Custom Price</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ══ DIRECTORY ══ -->
+        <section class="view" id="view-directory">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-magnifying-glass"></i> User Directory Search</div>
+            <div class="card-sub">Search customers by username or email.</div>
+            <form id="dirForm" onsubmit="searchDirectory(event)">
+              <div class="input-group">
+                <input class="input mono" type="text" id="dirQuery" placeholder="e.g. john or %">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+              </div>
+            </form>
+            <div class="hint">Union-based injection target: <code>' UNION SELECT 1,username,password,role FROM users--</code></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-stopwatch"></i> Merchant Lookup (Time-Based)</div>
+            <div class="card-sub">Search merchants by name. Queries containing <code>SLEEP(n)</code> intentionally delay the response.</div>
+            <form id="merchForm" onsubmit="searchMerchant(event)">
+              <div class="input-group">
+                <input class="input mono" type="text" id="merchQuery" placeholder="e.g. Shop or ' AND SLEEP(3)--">
+                <button class="btn btn-outline" type="submit"><i class="fa-solid fa-stopwatch"></i> Lookup</button>
+              </div>
+            </form>
+            <div class="hint">Blind time-based SQLi target: try <code>' AND SLEEP(3)--</code> and measure the response delay.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-code"></i> Search Result Reflect</div>
+            <div class="card-sub">A search results page that reflects your query directly into the HTML.</div>
+            <a href="/api/v1/search/reflect?query=%3Cscript%3Ealert(document.domain)%3C/script%3E" target="_blank" class="btn btn-outline"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Reflected Search Page</a>
+          </div>
+        </section>
+
+        <!-- ══ DOCUMENTS ══ -->
+        <section class="view" id="view-documents">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-folder-open"></i> Document Vault</div>
+            <div class="card-sub">Retrieve your stored documents (statements, contracts, KYC). Documents are fetched directly by ID.</div>
+            <form id="docForm" onsubmit="fetchDocument(event)">
+              <div class="input-group">
+                <input class="input mono" type="number" id="docId" value="3" min="1">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-file"></i> Fetch Document</button>
+              </div>
+            </form>
+            <div class="hint">IDOR target: no ownership check is performed. Try <code>doc_id=1</code> to read the admin credentials file, or <code>doc_id=5</code> for KYC data.</div>
+          </div>
+        </section>
+
+        <!-- ══ WEBHOOKS ══ -->
+        <section class="view" id="view-webhooks">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-network-wired"></i> Webhook Diagnostic Tester</div>
+            <div class="card-sub">Test webhook endpoints by fetching any URL server-side.</div>
+            <form id="webhookForm" onsubmit="fetchWebhook(event)">
+              <div class="field">
+                <label for="whUrl">URL to Fetch</label>
+                <input class="input mono" type="text" id="whUrl" value="https://httpbin.org/get">
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Fetch</button>
+            </form>
+            <div class="hint">SSRF target. Internal URLs like <code>http://127.0.0.1:3000/api/v1/admin/panel</code> and cloud metadata <code>http://169.254.169.254/latest/meta-data/</code> leak secrets.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-server"></i> Internal Network Discovery</div>
+            <div class="card-sub">One-click probes against internal microservices.</div>
+            <div class="input-group" style="flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="probeAdminPanel()"><i class="fa-solid fa-lock"></i> Admin Panel</button>
+              <button class="btn btn-outline" onclick="probeMetadata()"><i class="fa-solid fa-cloud"></i> AWS Metadata</button>
+              <button class="btn btn-outline" onclick="probeInternal('clearing')"><i class="fa-solid fa-building"></i> Clearing Gateway</button>
+              <button class="btn btn-outline" onclick="probeInternal('vault')"><i class="fa-solid fa-key"></i> Key Vault</button>
+              <button class="btn btn-outline" onclick="probeInternal('identity')"><i class="fa-solid fa-user-shield"></i> Identity Provider</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ SUPPORT ══ -->
+        <section class="view" id="view-support">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-headset"></i> Submit Support Ticket</div>
+            <div class="card-sub">Raise a support request. Tickets are stored and can be reviewed by agents.</div>
+            <form id="ticketForm" onsubmit="createTicket(event)">
+              <div class="field">
+                <label for="ticketSubject">Subject</label>
+                <input class="input" type="text" id="ticketSubject" value="Account Inquiry">
+              </div>
+              <div class="field">
+                <label for="ticketMessage">Message</label>
+                <textarea class="input mono" id="ticketMessage">&lt;img src=x onerror=alert('stored_xss')&gt;</textarea>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Submit Ticket</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-inbox"></i> My Tickets</div>
+            <div class="card-sub">Recent support requests associated with your account.</div>
+            <div id="ticketList"><div class="empty">Submit a ticket to see it here.</div></div>
+            <div style="margin-top:0.8rem;"><button class="btn btn-ghost btn-sm" onclick="loadTickets()"><i class="fa-solid fa-rotate"></i> Refresh Tickets</button></div>
+          </div>
+        </section>
+
+        <!-- ══ DEV TOOLS ══ -->
+        <section class="view" id="view-devtools">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-book"></i> API Documentation</div>
+            <div class="card-sub">Official REST API reference — lists all endpoints, methods and authentication requirements.</div>
+            <button class="btn btn-outline" onclick="viewApiDocs()"><i class="fa-solid fa-book-open"></i> Load API Reference</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-diagram-project"></i> GraphQL API Console</div>
+            <div class="card-sub">Run queries against the enterprise GraphQL engine.</div>
+            <form id="gqlForm" onsubmit="runGraphQL(event)">
+              <div class="field">
+                <label for="gqlQuery">GraphQL Query</label>
+                <textarea class="input mono" id="gqlQuery">query { user(id: 1) { id username email balance role } }</textarea>
+              </div>
+              <div class="input-group">
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-play"></i> Execute</button>
+                <button class="btn btn-outline" onclick="introspectGQL(event)"><i class="fa-solid fa-magnifying-glass"></i> Introspection</button>
+              </div>
+            </form>
+            <div class="hint">Introspection query: <code>{ __schema { types { name } } }</code> or dump secrets via <code>{ adminSecrets }</code>.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-file-code"></i> XML Invoice Import</div>
+            <div class="card-sub">Submit an invoice as XML for automated processing.</div>
+            <form id="xmlForm" onsubmit="submitXML(event)">
+              <div class="field">
+                <label for="xmlBody">XML Document</label>
+                <textarea class="input mono" id="xmlBody">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE invoice [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;invoice&gt;
+  &lt;id&gt;&amp;xxe;&lt;/id&gt;
+&lt;/invoice&gt;</textarea>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-upload"></i> Process Invoice</button>
+            </form>
+            <div class="hint">XXE target: external entities in the XML body are expanded server-side and reflected in the response.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-shield-cat"></i> Single Sign-On (OAuth 2.0)</div>
+            <div class="card-sub">Authorize third-party applications via the bank's SSO provider.</div>
+            <a href="/oauth/authorize?client_id=cloudbank_app&redirect_uri=http://localhost:3000/oauth/callback&response_type=code" target="_blank" class="btn btn-outline"><i class="fa-solid fa-arrow-up-right-from-square"></i> Start OAuth Flow</a>
+            <div class="hint">Try manipulating <code>redirect_uri</code> to an attacker-controlled domain (open redirect + token leak).</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-arrows-turn-to-dots"></i> URL Redirect Service</div>
+            <div class="card-sub">Official URL shortener used in marketing campaigns.</div>
+            <form id="redirForm" onsubmit="testRedirect(event)">
+              <div class="input-group">
+                <input class="input mono" type="text" id="redirUrl" value="https://evil.com">
+                <button class="btn btn-outline" type="submit"><i class="fa-solid fa-share"></i> Follow Redirect</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ══ SETTINGS ══ -->
+        <section class="view" id="view-settings">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Security Environment</div>
+            <div class="card-sub">Network security level applied to API requests: EASY (no protections) · MEDIUM (basic WAF) · HARD (strict WAF + CSRF).</div>
+            <select id="settingsDifficulty" class="input" onchange="setDifficulty(this.value)" style="max-width:260px;">
+              <option value="EASY">EASY — no protections</option>
+              <option value="MEDIUM">MEDIUM — basic WAF filters</option>
+              <option value="HARD">HARD — strict WAF + CSRF</option>
+            </select>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-user-gear"></i> Account Settings</div>
+            <div class="card-sub">Update your profile details.</div>
+            <div class="settings-avatar" id="settingsAvatar">J</div>
+            <form id="profileForm" onsubmit="updateProfile(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="profEmail">Email</label>
+                  <input class="input" type="text" id="profEmail" value="john@example.com">
+                </div>
+                <div class="field">
+                  <label for="profPassword">Password</label>
+                  <input class="input" type="password" id="profPassword" value="password123">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
+            </form>
+            <div class="hint">Mass assignment: the API accepts extra fields like <code>role</code> and <code>balance</code>. Try adding <code>{"role":"admin"}</code> via Burp Repeater.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-user-pen"></i> Profile Bio</div>
+            <div class="card-sub">A short bio shown on your public profile.</div>
+            <form id="bioForm" onsubmit="updateBio(event)">
+              <div class="field">
+                <label for="bioText">Bio</label>
+                <textarea class="input mono" id="bioText">Admin' OR '1'='1</textarea>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Bio</button>
+            </form>
+            <div class="hint">Second-order SQLi: the bio payload is stored and later interpolated into admin audit queries.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Two-Factor Authentication</div>
+            <div class="card-sub">Reset your 2FA PIN using the recovery flow.</div>
+            <form id="twofaForm" onsubmit="reset2FA(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="twofaUser">Username</label>
+                  <input class="input mono" type="text" id="twofaUser" value="john.doe">
+                </div>
+                <div class="field">
+                  <label for="twofaPin">4-Digit PIN</label>
+                  <input class="input mono" type="text" id="twofaPin" value="4829" maxlength="4">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-lock"></i> Reset PIN</button>
+            </form>
+            <div class="hint">Rate limit is enforced per IP (5/min) but trusts <code>X-Forwarded-For</code> / <code>Client-IP</code> — rotate the header in Burp Intruder.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-file-arrow-up"></i> Avatar Upload</div>
+            <div class="card-sub">Upload a profile picture.</div>
+            <form id="avatarForm" onsubmit="uploadAvatar(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="avFile">Filename</label>
+                  <input class="input mono" type="text" id="avFile" value="avatar.png">
+                </div>
+                <div class="field">
+                  <label for="avContent">File Content</label>
+                  <input class="input mono" type="text" id="avContent" value="PNG_DATA">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-upload"></i> Upload Avatar</button>
+            </form>
+            <div class="hint">Try a web shell filename like <code>shell.php.png</code> to test extension checks.</div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ HTTP CONSOLE DRAWER ══════════════ -->
+  <div class="console-wrap">
+    <button class="console-toggle" id="consoleToggle" onclick="toggleConsole()">
+      <i class="fa-solid fa-terminal"></i> HTTP Console
+    </button>
+    <div class="console-panel" id="consolePanel">
+      <div class="console-head">
+        <div class="console-tabs">
+          <button class="ctab active" id="tab-request" onclick="switchTab('request')">Request</button>
+          <button class="ctab" id="tab-response" onclick="switchTab('response')">Response</button>
+          <button class="ctab" id="tab-pretty" onclick="switchTab('pretty')">Response (JSON)</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.7rem; color:#94a3b8; font-weight:600;">
+            <i class="fa-solid fa-shield-halved" style="color:#f59e0b;"></i> WAF
+            <select id="difficultySelect" onchange="setDifficulty(this.value)"
+              style="background:#0e1626; border:1px solid #263449; color:#38bdf8; font-family:inherit; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:7px; font-weight:600; outline:none;">
+              <option value="EASY">EASY</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HARD">HARD</option>
+            </select>
+          </label>
+          <div class="console-tools">
+            <button onclick="copyConsole()"><i class="fa-solid fa-copy"></i> Copy Raw</button>
+            <button onclick="clearConsole()"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+      <pre class="console-body" id="consoleBody">No requests captured yet. Perform an action in the UI.</pre>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    'use strict';
+
+    // ── State ──────────────────────────────────────────────
+    let authToken = '';
+    let csrfToken = '';
+    let currentUser = null;
+    let lastSessionToken = '';
+    let lastRequestRaw = '';
+    let lastResponseRaw = '';
+    let lastResponsePretty = '';
+    let activeConsoleTab = 'request';
+    const viewTitles = {
+      dashboard: 'Dashboard', transfers: 'Transfers', cards: 'Cards', store: 'Merchant Store',
+      directory: 'User Directory', documents: 'Documents', webhooks: 'Webhooks',
+      support: 'Support Center', devtools: 'API / Developer Tools', settings: 'Account Settings'
+    };
+
+    // ── Helpers ────────────────────────────────────────────
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function activeDifficulty() {
+      return $('appShell').classList.contains('hidden') ? $('loginDifficulty').value : $('difficultySelect').value;
+    }
+    function fmtMoney(n) {
+      return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function toast(msg, type) {
+      const el = document.createElement('div');
+      el.className = 'toast ' + (type || '');
+      el.textContent = msg;
+      $('toastWrap').appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    // ── HTTP layer with RAW capture (Burp-style) ──────────
+    async function api(method, url, body, isText) {
+      const opts = { method, headers: { 'Accept': 'application/json', 'X-Difficulty-Level': activeDifficulty() } };
+      let payloadForLog = '';
+      if (body !== undefined) {
+        if (isText) {
+          opts.headers['Content-Type'] = isText;
+          opts.body = body;
+          payloadForLog = body;
+        } else {
+          opts.headers['Content-Type'] = 'application/json';
+          opts.body = JSON.stringify(body);
+          payloadForLog = JSON.stringify(body, null, 2);
+        }
+      }
+      if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+      if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method)) opts.headers['X-CSRF-Token'] = csrfToken;
+
+      const res = await fetch(url, opts);
+      const text = await res.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch (e) {}
+      buildRawConsole(method, url, opts, res, text, payloadForLog);
+      return { res, data, text };
+    }
+
+    function buildRawConsole(method, url, opts, res, resText, payloadForLog) {
+      let u;
+      try { u = new URL(url, location.origin); } catch (e) { u = new URL(location.origin); }
+
+      const reqHdrs = Object.entries(opts.headers);
+      const reqLines = [
+        method + ' ' + u.pathname + u.search + ' HTTP/1.1',
+        'Host: ' + u.host,
+        'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36',
+        'Accept: application/json',
+        'Connection: keep-alive'
+      ];
+      reqHdrs.forEach(([k, v]) => {
+        if (!/^(accept|connection)$/i.test(k)) reqLines.push(k + ': ' + v);
+      });
+      reqLines.push('');
+      reqLines.push(payloadForLog || '');
+
+      const resHdrs = [];
+      if (res.headers && res.headers.forEach) res.headers.forEach((v, k) => resHdrs.push(k + ': ' + v));
+      const resLines = [
+        'HTTP/1.1 ' + res.status + ' ' + res.statusText,
+        ...resHdrs,
+        '',
+        resText
+      ];
+
+      let pretty = resText;
+      try { pretty = JSON.stringify(JSON.parse(resText), null, 2); } catch (e) {}
+
+      lastRequestRaw = reqLines.join('\n');
+      lastResponseRaw = resLines.join('\n');
+      lastResponsePretty = pretty;
+      if (activeConsoleTab === 'request') renderConsole(lastRequestRaw);
+      else if (activeConsoleTab === 'response') renderConsole(lastResponseRaw);
+      else renderConsole(lastResponsePretty);
+    }
+
+    function renderConsole(content) {
+      $('consoleBody').textContent = content;
+    }
+
+    function switchTab(tab) {
+      activeConsoleTab = tab;
+      ['request', 'response', 'pretty'].forEach(t =>
+        $('tab-' + t).classList.toggle('active', t === tab));
+      if (tab === 'request') renderConsole(lastRequestRaw || 'No request captured yet.');
+      else if (tab === 'response') renderConsole(lastResponseRaw || 'No response captured yet.');
+      else renderConsole(lastResponsePretty || 'No response captured yet.');
+    }
+
+    function toggleConsole() {
+      const p = $('consolePanel');
+      const open = p.classList.toggle('open');
+      $('consoleToggle').innerHTML = open
+        ? '<i class="fa-solid fa-terminal"></i> Hide HTTP Console'
+        : '<i class="fa-solid fa-terminal"></i> HTTP Console';
+    }
+
+    function copyConsole() {
+      const text = lastRequestRaw + '\n\n' + lastResponseRaw;
+      if (!text.trim()) return toast('Nothing to copy yet', 'err');
+      navigator.clipboard.writeText(text).then(() => toast('Raw HTTP copied to clipboard', 'ok')).catch(() => toast('Copy failed', 'err'));
+    }
+
+    function clearConsole() {
+      lastRequestRaw = ''; lastResponseRaw = ''; lastResponsePretty = '';
+      $('consoleBody').textContent = 'Console cleared.';
+    }
+
+    // ── Navigation ─────────────────────────────────────────
+    function goTo(view) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      $('view-' + view).classList.add('active');
+      $('pageTitle').textContent = viewTitles[view] || 'Dashboard';
+      if (view === 'dashboard') refreshDashboard();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => goTo(b.dataset.view)));
+
+    // ── Login / Logout ─────────────────────────────────────
+    $('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = $('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...';
+      const errBox = $('loginErr');
+      errBox.classList.remove('show');
+
+      try {
+        const body = { username: $('loginUser').value, password: $('loginPass').value };
+        const { res, data } = await api('POST', '/api/v1/auth/login', body);
+
+        if (!res.ok || data.status !== 'success') {
+          errBox.textContent = (data.message || 'Login failed.') + ' (' + (data.code || res.status) + ')';
+          errBox.classList.add('show');
+          toast('Login failed: ' + (data.message || ''), 'err');
+          return;
+        }
+
+        authToken = data.data.token;
+        csrfToken = data.data.csrf_token;
+        currentUser = data.data.user;
+        enterApp();
+      } catch (err) {
+        errBox.textContent = 'Network error — is the server running?';
+        errBox.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to Online Banking';
+      }
+    });
+
+    function enterApp() {
+      $('loginScreen').classList.add('hidden');
+      $('appShell').classList.remove('hidden');
+      const u = currentUser;
+      const initials = (u.username[0] || 'U').toUpperCase();
+      $('userAvatar').textContent = initials;
+      $('settingsAvatar').textContent = initials;
+      $('userName').textContent = u.username;
+      $('userRole').textContent = u.role;
+      toast('Welcome back, ' + u.username + ' (' + u.role + ')', 'ok');
+      goTo('dashboard');
+      loadTickets();
+    }
+
+    async function logout() {
+      if (authToken) {
+        try { await api('POST', '/api/v1/auth/logout'); } catch (e) {}
+      }
+      authToken = ''; csrfToken = ''; currentUser = null;
+      $('appShell').classList.add('hidden');
+      $('loginScreen').classList.remove('hidden');
+      $('loginErr').classList.remove('show');
+      toast('Signed out.');
+    }
+
+    // ── Difficulty ─────────────────────────────────────────
+    async function setDifficulty(level) {
+      if ($('difficultySelect')) $('difficultySelect').value = level;
+      if ($('settingsDifficulty')) $('settingsDifficulty').value = level;
+      const { res, data } = await api('POST', '/api/v1/difficulty', { level });
+      toast('Security level: ' + (data.difficulty || level));
+      if ($('statSecurity')) $('statSecurity').textContent = level;
+    }
+
+    // ── Dashboard: live sync + transactions ───────────────
+    async function refreshDashboard() {
+      if (!currentUser) return;
+      if (authToken) {
+        const { res, data } = await api('GET', '/api/v1/auth/me');
+        if (res.ok && data.data) {
+          currentUser = data.data.user;
+        }
+      }
+      const u = currentUser;
+      $('dashBalance').textContent = fmtMoney(u.balance);
+      $('dashAcc').textContent = u.account_no || '—';
+      $('dashHolder').textContent = u.username;
+      $('statSecurity').textContent = $('difficultySelect').value;
+      loadTransactions();
+    }
+
+    async function loadTransactions() {
+      if (!authToken) { $('txnContainer').innerHTML = '<div class="empty">Sign in to view transactions.</div>'; return; }
+      const { res, data } = await api('GET', '/api/v1/transactions');
+      const txs = data.transactions || [];
+      $('statTxns').textContent = txs.length;
+      if (!txs.length) {
+        $('txnContainer').innerHTML = '<div class="empty">No transactions found for this account.</div>';
+        return;
+      }
+      const acc = currentUser.account_no;
+      const rows = txs.slice(0, 8).map(tx => {
+        const inbound = tx.to_account === acc;
+        const cls = inbound ? 'amount-in' : 'amount-out';
+        const sign = inbound ? '+' : '−';
+        return '<tr>' +
+          '<td class="mono muted" style="font-size:0.75rem;">' + esc(tx.reference) + '</td>' +
+          '<td class="muted">' + esc(tx.created_at) + '</td>' +
+          '<td>' + esc(tx.description) + '</td>' +
+          '<td class="' + cls + '">' + sign + fmtMoney(tx.amount) + '</td>' +
+          '<td><span class="pill success">' + esc(tx.status) + '</span></td>' +
+          '</tr>';
+      }).join('');
+      $('txnContainer').innerHTML = '<table class="table"><thead><tr><th>Reference</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    // ── Transfers ──────────────────────────────────────────
+    async function getStatement() {
+      const { res, data } = await api('GET', '/api/v1/statements');
+      if (res.ok && data.data) {
+        const s = data.data.summary;
+        toast('Statement ' + data.data.statement_id + ' — credits ' + fmtMoney(s.credits) + ' · debits ' + fmtMoney(s.debits), 'ok');
+      } else toast('Statement unavailable', 'err');
+    }
+
+    async function verifyRoute(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/transfer/verify', {
+        target_account: $('routeAcc').value, routing_code: $('routeCode').value
+      });
+      if (res.ok) toast('Route verified ✓', 'ok');
+      else toast(data.message || data.code || 'Route not verified', 'err');
+    }
+
+    async function instantTransfer(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/transfer/race', {
+        to_account: $('raceTo').value, amount: parseFloat($('raceAmount').value)
+      });
+      if (res.ok) {
+        toast('Transfer complete — Ref: ' + (data.data ? data.data.reference : 'N/A'), 'ok');
+        if (currentUser) currentUser.balance = data.data.remaining_balance;
+      } else toast(data.message || 'Transfer failed', 'err');
+    }
+
+    // ── Cards ──────────────────────────────────────────────
+    async function validateCard(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/card/validate', {
+        card_number: $('cardNo').value, cvv: $('cardCvv').value, exp_month: $('cardExp').value
+      });
+      if (res.ok) toast('Card is valid ✓', 'ok');
+      else toast(data.code || data.message || 'Card invalid', 'err');
+    }
+
+    // ── Store ──────────────────────────────────────────────
+    async function checkout(productId, price) {
+      const { res, data } = await api('POST', '/api/v1/store/checkout', { product_id: productId, quantity: 1, unit_price: price });
+      if (res.ok) {
+        toast('Purchased ✓ Invoice: ' + (data.invoice || '') + ' — Balance: ' + fmtMoney(data.order_details?.new_balance), 'ok');
+        if (currentUser) currentUser.balance = data.order_details.new_balance;
+        refreshDashboard();
+      } else toast(data.message || 'Checkout failed', 'err');
+    }
+
+    async function priceTamper(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/store/checkout', {
+        product_id: 1, quantity: parseInt($('tamperQty').value), unit_price: parseFloat($('tamperPrice').value)
+      });
+      if (res.ok) {
+        toast('Order placed ✓ New balance: ' + fmtMoney(data.order_details?.new_balance), 'ok');
+        if (currentUser) currentUser.balance = data.order_details.new_balance;
+        refreshDashboard();
+      } else toast(data.message || 'Checkout failed', 'err');
+    }
+
+    // ── Directory ──────────────────────────────────────────
+    async function searchDirectory(e) {
+      e.preventDefault();
+      const q = $('dirQuery').value;
+      const { res, data } = await api('GET', '/api/v1/user/search?q=' + encodeURIComponent(q));
+      if (data.results && data.results.length) toast(data.results.length + ' result(s) found', 'ok');
+      else if (data.status === 'success') toast('No matches found');
+      else toast(data.message || 'Search error', 'err');
+    }
+
+    async function searchMerchant(e) {
+      e.preventDefault();
+      const q = $('merchQuery').value;
+      const start = performance.now();
+      const { res, data } = await api('GET', '/api/v1/merchant/search?name=' + encodeURIComponent(q));
+      const ms = Math.round(performance.now() - start);
+      toast('Lookup done in ' + ms + 'ms', ms > 1500 ? 'err' : 'ok');
+    }
+
+    // ── Documents ──────────────────────────────────────────
+    async function fetchDocument(e) {
+      e.preventDefault();
+      const { res, data } = await api('GET', '/api/v1/user/document?doc_id=' + encodeURIComponent($('docId').value));
+      if (res.ok) {
+        const d = data.data;
+        toast('Document #' + d.id + ': ' + d.filename + ' [' + d.classification + ']', 'ok');
+      } else toast(data.message || 'Document not found', 'err');
+    }
+
+    // ── Webhooks ───────────────────────────────────────────
+    async function fetchWebhook(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/webhook/fetch', { url: $('whUrl').value });
+      if (res.ok) toast('Fetch complete, body ' + (data.body ? data.body.length : 0) + ' chars', 'ok');
+      else toast(data.message || 'Fetch failed', 'err');
+    }
+
+    async function probeAdminPanel() {
+      const { res, data } = await api('POST', '/api/v1/webhook/fetch', { url: 'http://127.0.0.1:3000/api/v1/admin/panel' });
+      toast(res.ok ? 'Admin panel data exfiltrated ✓' : (data.message || 'Blocked'), res.ok ? 'ok' : 'err');
+    }
+
+    async function probeMetadata() {
+      const { res, data } = await api('POST', '/api/v1/webhook/fetch', { url: 'http://169.254.169.254/latest/meta-data/' });
+      toast(res.ok ? 'AWS metadata leaked ✓' : (data.message || 'Blocked'), res.ok ? 'ok' : 'err');
+    }
+
+    async function probeInternal(service) {
+      const map = {
+        clearing: 'http://127.0.0.1:3000/api/v1/internal/clearing',
+        vault: 'http://127.0.0.1:3000/api/v1/internal/vault',
+        identity: 'http://127.0.0.1:3000/api/v1/internal/identity'
+      };
+      const { res, data } = await api('POST', '/api/v1/webhook/fetch', { url: map[service] });
+      if (res.ok) {
+        const body = JSON.parse(data.body || '{}');
+        toast('Internal service reached: ' + (body.service || service), 'ok');
+      } else toast(data.message || 'Reach blocked', 'err');
+    }
+
+    // ── Support ────────────────────────────────────────────
+    async function createTicket(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/ticket/create', {
+        subject: $('ticketSubject').value, message: $('ticketMessage').value
+      });
+      if (res.ok) { toast('Ticket submitted ✓', 'ok'); loadTickets(); }
+      else toast(data.message || 'Submission failed', 'err');
+    }
+
+    async function loadTickets() {
+      if (!authToken) return;
+      const { res, data } = await api('GET', '/api/v1/ticket/list');
+      const t = data.tickets || [];
+      if (!t.length) {
+        $('ticketList').innerHTML = '<div class="empty">No support tickets yet.</div>';
+        return;
+      }
+      const rows = t.slice().reverse().map(x =>
+        '<tr><td class="mono">#' + x.id + '</td><td>' + esc(x.subject) + '</td><td class="muted">' + esc(x.message) + '</td><td><span class="pill ' + (x.status === 'open' ? 'warn' : 'success') + '">' + esc(x.status) + '</span></td></tr>'
+      ).join('');
+      $('ticketList').innerHTML = '<table class="table"><thead><tr><th>ID</th><th>Subject</th><th>Message</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    // ── GraphQL ────────────────────────────────────────────
+    async function viewApiDocs() {
+      const { res, data } = await api('GET', '/api/v1/docs');
+      if (res.ok && data.endpoints) {
+        toast('API reference loaded — ' + data.endpoints.length + ' endpoints documented', 'ok');
+      } else toast('Docs unavailable', 'err');
+    }
+
+    async function runGraphQL(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/graphql', { query: $('gqlQuery').value });
+      if (data.data && data.data.user) toast('Fetched user: ' + data.data.user.username, 'ok');
+      else if (data.data && data.data.adminSecrets) toast('Admin secrets leaked ✓', 'ok');
+      else toast(data.errors ? 'Query error' : 'Query executed', data.errors ? 'err' : 'ok');
+    }
+
+    async function introspectGQL(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/graphql', { query: '{ __schema { types { name } } }' });
+      const names = (data.data?.__schema?.types || []).map(t => t.name);
+      toast('Introspection: ' + names.join(', '), 'ok');
+    }
+
+    // ── XXE ────────────────────────────────────────────────
+    async function submitXML(e) {
+      e.preventDefault();
+      const { res, text } = await api('POST', '/api/v1/invoice/xml', $('xmlBody').value, 'application/xml');
+      if (text.includes('extracted_entity_data')) toast('Entity expanded — file contents returned ✓', 'ok');
+      else toast('Invoice processed', res.ok ? 'ok' : 'err');
+    }
+
+    // ── Redirect ───────────────────────────────────────────
+    function testRedirect(e) {
+      e.preventDefault();
+      window.open('/api/v1/redirect?url=' + encodeURIComponent($('redirUrl').value), '_blank');
+    }
+
+    // ── Session token ──────────────────────────────────────
+    async function getSessionToken() {
+      const { res, data } = await api('GET', '/api/v1/session/token');
+      if (data.data) {
+        lastSessionToken = data.data.session_token;
+        toast('Session token generated (base64)');
+        try {
+          toast('Decoded structure: ' + atob(data.data.session_token), 'ok');
+        } catch (err) {}
+      }
+    }
+
+    async function decodeSessionToken() {
+      if (!lastSessionToken) { toast('Generate a token first', 'err'); return; }
+      try {
+        const decoded = atob(lastSessionToken);
+        const [role, timeHex, prngHex, counter] = decoded.split(':');
+        toast('role=' + role + ' · time=' + parseInt(timeHex, 16) + ' · counter=' + counter, 'ok');
+      } catch (e) { toast('Not valid base64', 'err'); }
+    }
+
+    // ── Settings ───────────────────────────────────────────
+    async function updateProfile(e) {
+      e.preventDefault();
+      const { res, data } = await api('PUT', '/api/v1/user/profile', {
+        email: $('profEmail').value, password: $('profPassword').value
+      });
+      if (res.ok) { toast('Profile saved ✓'); if (data.user) currentUser.balance = data.user.balance; refreshDashboard(); }
+      else toast(data.message || 'Update failed', 'err');
+    }
+
+    async function updateBio(e) {
+      e.preventDefault();
+      const { res, data } = await api('PUT', '/api/v1/user/bio', { bio: $('bioText').value });
+      toast(res.ok ? 'Bio saved ✓' : (data.message || 'Save failed'), res.ok ? 'ok' : 'err');
+    }
+
+    async function reset2FA(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/auth/2fa-reset', {
+        username: $('twofaUser').value, pin: $('twofaPin').value
+      });
+      if (res.ok) toast('PIN reset ✓ Recovery code: ' + (data.recovery_code || ''), 'ok');
+      else toast(data.message || data.code || 'Reset failed', 'err');
+    }
+
+    async function uploadAvatar(e) {
+      e.preventDefault();
+      const { res, data } = await api('POST', '/api/v1/user/avatar', {
+        filename: $('avFile').value, file_content: $('avContent').value
+      });
+      toast(res.ok ? (data.execution_hint || 'Uploaded ✓') : (data.message || 'Upload failed'), res.ok ? 'ok' : 'err');
+    }
+
+    // ── Init ───────────────────────────────────────────────
+    (async function init() {
+      try {
+        const res = await fetch('/api/v1/difficulty');
+        const data = await res.json();
+        if (data.difficulty) {
+          $('difficultySelect').value = data.difficulty;
+          $('settingsDifficulty').value = data.difficulty;
+          $('loginDifficulty').value = data.difficulty;
+        }
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

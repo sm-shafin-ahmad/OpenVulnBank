@@ -1,0 +1,20 @@
+{
+  "name": "burp-test",
+  "version": "1.0.0",
+  "description": "> **⚠️ WARNING: This application is INTENTIONALLY VULNERABLE. It is built exclusively for authorized security assessments and Burp Suite training in isolated lab environments. NEVER deploy to production or expose to public networks.**",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3"
+  }
+}
